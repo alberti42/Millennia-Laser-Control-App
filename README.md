@@ -19,6 +19,6 @@ You can start the application automatically at boot.
 
 # Credits
 
-The application has been written by [Andrea Alberti](http://quantum-technologies.iap.uni-bonn.de/alberti/).
+The application has been developed by [Andrea Alberti](http://quantum-technologies.iap.uni-bonn.de/alberti/).
 
 
