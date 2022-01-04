@@ -6,3 +6,4 @@
 /distributable/libwinpthread-1.dll
 /distributable/msys-2.0.dll
 /*.o
+distributable/config.txt
