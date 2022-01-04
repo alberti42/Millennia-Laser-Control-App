@@ -10,15 +10,22 @@ Application for controlling and logging [Spectra-Physics Millennia Lasers](https
 
 # Compilation
 
-The application has been tested and compiled with both Cygwin and Msys2 environment. The recommended compiler is [MinGW-w64](https://www.mingw-w64.org/) with standalone installation. Make sure that MinGW's g++ compiler can be found in Windows' path by editing the `$PATH` environment variable or edit the `Makefile` to specify the exact path of MinGW's g++ compiler.
+The application has been tested and built using [MinGW-w64](https://www.mingw-w64.org/) compiler. If you are using [make](https://www.gnu.org/software/make/) provided by either [Cygwin](https://www.cygwin.com/) or [Msys2](https://www.msys2.org/) environment to process the `Makefile`, make sure that MinGW's g++ compiler can be found in Windows' path by editing the `$PATH` environment variable or specifying the exact path of MinGW's g++ compiler in the `Makefile`. The app has been tested under both Windows 7 and Windows 10.
 
 # Automatic start after boot
 
 You can start the application automatically at boot.
 
 
+
+![Automatic start after boot](https://raw.githubusercontent.com/alberti42/Millennia-Laser-Control-App/main/screenshots/Screenshot_Millennia_laser_control_app.png)
+
+
+![Automatic start after boot](https://raw.githubusercontent.com/alberti42/Millennia-Laser-Control-App/main/screenshots/Autostart_Millennia_laser_control_app.png)
+
+
 # Credits
 
-The application has been developed by [Andrea Alberti](http://quantum-technologies.iap.uni-bonn.de/alberti/).
+The application has been developed in C++ by [Andrea Alberti](http://quantum-technologies.iap.uni-bonn.de/alberti/).
 
 

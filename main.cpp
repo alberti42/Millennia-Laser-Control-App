@@ -188,7 +188,7 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
     size_t num_vals_rmspower = round((float)logPeriodMilli/(float)delay);
     double* rmspower_vals = (double*)malloc(sizeof(double)*(num_vals_rmspower));
 
-    size_t num_vals_power = round(5.0f*1000.0f/delay);
+    size_t num_vals_power = round(5.0f*1000.0f/delay); // 5 second per default for the GUI update
     float* power_vals = (float*)malloc(sizeof(float)*num_vals_power);
     
     size_t k;
