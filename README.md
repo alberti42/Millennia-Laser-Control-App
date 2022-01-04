@@ -5,8 +5,8 @@ Application for controlling and logging [Spectra-Physics Millennia Lasers](https
 
 * It covers all functions provided by the app shipped originally with the laser.
 * It provides new features. The most notable one is the possibility to log multiple parameters of the laser.
-* It gives a feedback about the instantaneous RMS noise level of the laser (1s integration time).
-* It circumvent the limitation of controlling a single laser when multiple lasers are connected.
+* It gives a feedback about the instantaneous RMS noise level of the laser (5s integration time).
+* It allows controlling multiple lasers when these are connected to the same computer via USB.
 
 # Instructions
 
