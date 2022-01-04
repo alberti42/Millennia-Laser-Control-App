@@ -12,7 +12,6 @@
 #include <cmath>
 #include <windows.h>
 #include <winuser.h>
-// #include <VersionHelpers.h>
 
 #define ID_TOGGLE_LOGGING_BTN (100)
 #define ID_TOGGLE_SHUTTER_BTN (120)
@@ -48,7 +47,8 @@ void printMemory(char* mem);
 char* comPort = NULL;
 HANDLE hSerial  = INVALID_HANDLE_VALUE;
 
-static const DWORD delay = 100;
+static const DWORD query_interval = 100; // interval [ms] between two queries
+static const DWORD int_time = 5;         // integration_time [s], hard coded (in the future, it could be set by the user)
 
 HANDLE isCOMbusyMutex;
 
@@ -92,7 +92,7 @@ DWORD threadID;
 
 void writeConfigFile();
 void getTimestamp(char* str);
-double computeRMSpower(float* power_vals, size_t num_vals_power, char* rmspower);
+double computeRMSpower(double* power_vals, size_t num_vals_power, char* rmspower);
 void rescanCOMports();
 
 char configPath[MAX_PATH+1];
@@ -109,7 +109,7 @@ vector<char*> namePorts;
 char COM_NONE[] = "NONE";
 
 string power_lbl("Power: ");
-string rmspower_lbl("RMS power (last 5 sec): ");
+string rmspower_lbl;
 string temp_diodes_lbl("Temp. diodes: ");
 string temp_crystal_lbl("Temp. cyrstal tower: ");
 string diode_hours_lbl("Diode hours: ");
@@ -117,11 +117,12 @@ string head_hours_lbl("Laser head hours: ");
 string laser_hours_lbl("Electronics hours: ");
 string diode_current_lbl("Diode current: ");
 string empty_str("");
-string title_str("Log app for Millennia");
+string title_str("Millennia Laser Control App");
 
 char laserName[1024];
 char serialNumber[1024];
 char errorStr[255];
+char rmspowerStr[255];
 
 void stopLogging()
 {
@@ -185,11 +186,11 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
     char timestamp[255];
     char error[255];
 
-    size_t num_vals_rmspower = round((float)logPeriodMilli/(float)delay);
+    size_t num_vals_rmspower = round((double)logPeriodMilli/(double)query_interval);
     double* rmspower_vals = (double*)malloc(sizeof(double)*(num_vals_rmspower));
 
-    size_t num_vals_power = round(5.0f*1000.0f/delay); // 5 second per default for the GUI update
-    float* power_vals = (float*)malloc(sizeof(float)*num_vals_power);
+    size_t num_vals_power = round((double)int_time*1000.0/(double)query_interval);
+    double* power_vals = (double*)malloc(sizeof(double)*num_vals_power);
     
     size_t k;
     BOOL array_powers_filled, array_rmspowers_filled;
@@ -212,8 +213,6 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
     strcpy(rmspower_avg,"NaN");
 
     INT numBytesRead;
-    
-    int s = 0;
 
     doStore = true;
     doRecord = false;
@@ -225,7 +224,7 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
 
     SetTimer(hwnd,             // handle to main window 
         IDT_QUERY_TIMER,        // timer identifier 
-        delay,                 // delay
+        query_interval,                 // query_interval
         (TIMERPROC) queryTimerFnc);
     
     while(isLogging)
@@ -233,26 +232,32 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
         if(doRecord)
         {            
             executeCmd((unsigned char*)"?p", NULL, &numBytesRead, power, 255);
-            
+
             if(isLogging)
             {
                 SetWindowText(hwndPowerLabel, (power_lbl + (const char*)power + " W").c_str());
             }
 
+            // get timestamp
             getTimestamp((char*)timestamp);
 
-            power_vals[k] = stof((const char*)power);
-
+            // convert queried power from str to float
+            power_vals[k] = stod((const char*)power) + 10.3;
+            
+            // if the buffer is filled, then we can compute the rms power
             if(array_powers_filled)
             {
+                // compute the RMS considering the last 5 seconds recording
                 rmspower_vals[counter] = computeRMSpower(power_vals,num_vals_power,(char*)rmspower);
-                s++;
             }
             
             if(doStore)
             {
                 if(array_rmspowers_filled)
                 {
+                    // compute the average of the RMS values recorded in the past logging period
+                    // such a step of computing the average yields a less fluctuating estimate of
+                    // the RIN recorded over the past logging period
                     double total_rmspower = 0;
                     for(int j = 0; j<num_vals_rmspower; j++)
                     {
@@ -306,11 +311,6 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
             counter++;
             if(counter==num_vals_rmspower)
             {   
-                if(s == counter)
-                {
-                    array_rmspowers_filled = true;
-                }
-
                 counter = 0;     
                 array_rmspowers_filled = true;
             }
@@ -344,7 +344,7 @@ DWORD WINAPI ThreadLoggingFunc(void* data) {
     return 0;
 }
 
-double computeRMSpower(float* power_vals, size_t num_vals_power, char* rmspower)
+double computeRMSpower(double* power_vals, size_t num_vals_power, char* rmspower)
 {
     double sum_power = 0, sum_power2 = 0;
 
@@ -353,12 +353,14 @@ double computeRMSpower(float* power_vals, size_t num_vals_power, char* rmspower)
         sum_power += power_vals[k];
         sum_power2 += power_vals[k]*power_vals[k];
     }
-    
+
+    // formula for RIN^2 value
     double rmspower_num = sum_power2/(sum_power*sum_power)*(double)num_vals_power-1;
+    
     if(rmspower_num<=0)
         rmspower_num = 0;
     else
-        rmspower_num = sqrt(rmspower_num)*(double)100;
+        rmspower_num = sqrt(rmspower_num)*(double)100;  // convert to percent
 
     sprintf(rmspower,"%1.4f",rmspower_num);
 
@@ -1232,6 +1234,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         (HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
         NULL);
 
+    sprintf(rmspowerStr,"RMS power (last %d sec.): ",int_time);
+    rmspower_lbl=string(rmspowerStr);
     SetWindowText(hwndRMSpowerLabel, rmspower_lbl.c_str());
 
 
@@ -1834,7 +1838,7 @@ INT resumeLogging()
     char timestamp[255];
     getTimestamp((char*)timestamp);
 
-    logFile << "# " << timestamp << " - Started logging Millenia laser";
+    logFile << "# " << timestamp << " - Started logging Millennia laser";
     if(strlen(laserName)>0)
     {
         logFile << " (" << laserName << ")";
