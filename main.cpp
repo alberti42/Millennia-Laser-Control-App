@@ -12,7 +12,7 @@
 #include <cmath>
 #include <windows.h>
 #include <winuser.h>
-#include <VersionHelpers.h>
+// #include <VersionHelpers.h>
 
 #define ID_TOGGLE_LOGGING_BTN (100)
 #define ID_TOGGLE_SHUTTER_BTN (120)
@@ -128,7 +128,7 @@ void stopLogging()
     if(isLogging)
     {
         isLogging = false;
-        WaitForSingleObject(hThread,INFINITE);
+        WaitForSingleObject(hThread,INFINITE);  // Wait for thread to finish execution
         CloseHandle(hThread);
 
         SetWindowText(hwndPowerLabel, power_lbl.c_str());
@@ -830,7 +830,6 @@ INT executeCmd(unsigned char* cmdLine, int* numBytesWritten, int* numBytesRead, 
     }
 
     ReleaseMutex(isCOMbusyMutex);
-
     return ret;
 }
 
@@ -880,14 +879,6 @@ LRESULT CALLBACK TextEditWithEnterProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM
             return CallWindowProc(origTextEditWndProc, wnd, msg, wParam, lParam);
     }
     return 0;
-}
-
-BOOL IsWin7OrLater() {
-    DWORD version = GetVersion();
-    DWORD major = (DWORD) (LOBYTE(LOWORD(version)));
-    DWORD minor = (DWORD) (HIBYTE(LOWORD(version)));
-
-    return (major > 6) || ((major == 6) && (minor >= 1));
 }
 
 void rescanCOMports()
