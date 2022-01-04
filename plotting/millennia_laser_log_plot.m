@@ -61,7 +61,7 @@ ylabel('Power (W)');
 
 subplot(3,2,2);
 plot(log_file_data{1},log_file_data{4},'MarkerEdgeColor','none','MarkerFaceColor',[0,114,189]/255,'MarkerSize',4,'LineStyle','none','Marker','o')
-ylabel('RMS');
+ylabel('RIN (%)');
 ylim([0,0.2]);
 
 subplot(3,2,3);
