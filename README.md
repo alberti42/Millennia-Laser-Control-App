@@ -64,6 +64,10 @@ Here below is an example of log file.
 
 The header in the *log* file is printed every time the logging operation is resumed.
 
+# Plotting of recorded values
+
+In the folder *plotting*, a simple MATLAB script `millennia_laser_log_plot.m` is provided, which plots the recorded value as a function of time. 
+
 # Compilation
 
 The application has been tested and built using [MinGW-w64](https://www.mingw-w64.org/) compiler. If you are using [make](https://www.gnu.org/software/make/) provided by either [Cygwin](https://www.cygwin.com/) or [Msys2](https://www.msys2.org/) environment to process the *Makefile*, make sure that MinGW's g++ compiler can be found in Windows' path by editing the `$PATH` environment variable or specifying the exact path of MinGW's g++ compiler in the *Makefile*. The app has been tested under both Windows 7 and Windows 10.
