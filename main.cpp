@@ -692,8 +692,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 INT setShutterDown(BOOL status)
 {
-    unsigned char query[] = "shut:?\n";
-    query[5] = status ? '0' : '1';
+    unsigned char query[] = "sht:?\n";
+    query[4] = status ? '0' : '1';
 
     INT ret = executeCmd(query);
 
