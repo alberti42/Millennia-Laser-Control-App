@@ -1,4 +1,4 @@
-# Millennia-Laser-Control-App
+# Millennia Laser Control App
 Application for controlling and logging [Spectra-Physics Millennia Lasers](https://www.spectra-physics.com/f/millennia-ev-cw-dpss-laser).
 
 ![Laser image](https://raw.githubusercontent.com/alberti42/Millennia-Laser-Control-App/main/screenshots/Millennia_laser.png)
